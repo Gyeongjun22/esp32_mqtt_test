@@ -1,53 +1,114 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 | Linux |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | ----- |
+# ESP32 MQTT v5 Test Project
 
-# Hello World Example
+ESP32-WROVER-KIT 기반 임베디드 애플리케이션.
+LED, Relay, Button, HW/SW Timer, BLE, WiFi, MQTT v5 기능을 포함합니다.
 
-Starts a FreeRTOS task to print "Hello World".
+## 개발 환경
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+| 항목 | 내용 |
+|------|------|
+| Target | ESP32 (Xtensa) |
+| Board | ESP32-WROVER-KIT 3.3V |
+| Framework | ESP-IDF v5.2.1 |
+| RTOS | FreeRTOS |
+| Serial Port | COM13 |
 
-## How to use example
-
-Follow detailed instructions provided specifically for this example.
-
-Select the instructions depending on Espressif chip installed on your development board:
-
-- [ESP32 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/stable/get-started/index.html)
-- [ESP32-S2 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/index.html)
-
-
-## Example folder contents
-
-The project **hello_world** contains one source file in C language [hello_world_main.c](main/hello_world_main.c). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt` files that provide set of directives and instructions describing the project's source files and targets (executable, library, or both).
-
-Below is short explanation of remaining files in the project folder.
+## 프로젝트 구조
 
 ```
-├── CMakeLists.txt
-├── pytest_hello_world.py      Python script used for automated testing
-├── main
-│   ├── CMakeLists.txt
-│   └── hello_world_main.c
-└── README.md                  This is the file you are currently reading
+├── main/
+│   ├── app_main.c              진입점 — NVS, BSP, 태스크 초기화
+│   ├── bsp/
+│   │   └── bsp_gpio.h/c        GPIO 핀 정의
+│   ├── drivers/
+│   │   ├── led.c/h             LED on/off/toggle
+│   │   ├── relay.c/h           Relay on/off
+│   │   ├── button.c/h          GPIO 입력 + ISR
+│   │   └── hwtimer.c/h         Hardware timer 설정
+│   └── tasks/
+│       ├── task_event.c/h      EventGroup — 태스크 간 통신 허브
+│       ├── task_led.c/h        LED 100ms 블링크 태스크
+│       ├── task_button.c/h     버튼 Short/Long/LongLong 감지
+│       ├── task_relay.c/h      Relay 제어 태스크
+│       ├── task_hwtimer.c/h    Hardware timer 태스크
+│       ├── task_ble.c/h        BLE Peripheral (GATT attribute table)
+│       ├── task_wifi.c/h       WiFi STA 연결
+│       ├── task_mqtt.c/h       MQTT v5 클라이언트
+│       └── swtimer.c/h         Software timer 유틸리티
+├── components/                 옵션 컴포넌트 (비활성)
+├── partitions.csv              플래시 레이아웃
+└── CMakeLists.txt
 ```
 
-For more information on structure and contents of ESP-IDF projects, please refer to Section [Build System](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html) of the ESP-IDF Programming Guide.
+## GPIO 핀 맵
 
-## Troubleshooting
+| 신호 | GPIO |
+|------|------|
+| LED Red | 19 |
+| LED Green | 22 |
+| Relay | 23 |
+| Button | 4 |
 
-* Program upload failure
+## 빌드 및 플래시
 
-    * Hardware connection is not correct: run `idf.py -p PORT monitor`, and reboot your board to see if there are any output logs.
-    * The baud rate for downloading is too high: lower your baud rate in the `menuconfig` menu, and try again.
+```bash
+# 환경 설정 (셸 세션마다 1회)
+export IDF_PATH=D:/esp32_sub/esp-idf-v5.2.1/esp-idf-v5.2.1
+source $IDF_PATH/export.sh
 
-## Technical support and feedback
+idf.py build                     # 빌드
+idf.py -p COM13 flash            # 플래시
+idf.py -p COM13 monitor          # 시리얼 모니터
+idf.py -p COM13 flash monitor    # 플래시 + 모니터
+idf.py fullclean                 # 빌드 아티팩트 전체 삭제
+```
 
-Please use the following feedback channels:
+## MQTT v5
 
-* For technical queries, go to the [esp32.com](https://esp32.com/) forum
-* For a feature request or bug report, create a [GitHub issue](https://github.com/espressif/esp-idf/issues)
+### 설정 변경 위치
 
-We will get back to you as soon as possible.
+| 파일 | 항목 |
+|------|------|
+| `main/tasks/task_wifi.c` | `WIFI_SSID`, `WIFI_PASS` |
+| `main/tasks/task_mqtt.c` | `MQTT_BROKER_URI` (Mosquitto 브로커 IP) |
+
+### 토픽 구조
+
+| 방향 | 토픽 | payload |
+|------|------|---------|
+| Subscribe | `esp32/relay/set` | `on` / `off` |
+| Subscribe | `esp32/led/set` | `on` / `off` |
+| Publish | `esp32/status` | `online` |
+| Publish | `esp32/button` | `short` / `long` / `long_long` |
+
+### Mosquitto 테스트
+
+```bash
+# 브로커 실행 (PC)
+mosquitto -v
+
+# 전체 토픽 수신
+mosquitto_sub -h 192.168.1.100 -V 5 -t "esp32/#" -v
+
+# Relay 제어
+mosquitto_pub -h 192.168.1.100 -V 5 -t "esp32/relay/set" -m "on"
+mosquitto_pub -h 192.168.1.100 -V 5 -t "esp32/relay/set" -m "off"
+
+# LED 제어
+mosquitto_pub -h 192.168.1.100 -V 5 -t "esp32/led/set" -m "on"
+mosquitto_pub -h 192.168.1.100 -V 5 -t "esp32/led/set" -m "off"
+```
+
+## 버튼 동작
+
+| 누름 시간 | 동작 | MQTT 발행 |
+|-----------|------|-----------|
+| < 2초 | Short press | `esp32/button` → `short` |
+| 2 ~ 5초 | Long press — LED 태스크 토글 | `esp32/button` → `long` |
+| 5초 이상 | Long Long press — 태스크 목록 출력 | `esp32/button` → `long_long` |
+
+## menuconfig 필수 설정
+
+```
+Component config → ESP-MQTT → Enable MQTT 5.0 support  [활성화]
+```
