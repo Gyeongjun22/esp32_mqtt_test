@@ -42,15 +42,9 @@ static void task_event(void* arg)
         }
         if (bits & EVT_BUTTON_LONG)
         {
-            if (xLedTaskHandle != NULL) {
-                ESP_LOGI(TAG, "버튼 입력 감지: LED Task를 종료합니다.");
-                vTaskDelete(xLedTaskHandle);
-                xLedTaskHandle = NULL;
-            }
-            else {
-                ESP_LOGI(TAG, "버튼 입력 감지: LED Task를 시작합니다.");
-                task_led_init();
-            }
+            // xLedTaskHandle에 직접 접근하지 않고 함수로 제어
+            ESP_LOGI(TAG, "버튼 입력 감지: LED Task 토글");
+            task_led_toggle();
         }
         if (bits & EVT_BUTTON_LONG_LONG)
         {

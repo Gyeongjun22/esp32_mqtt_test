@@ -2,6 +2,7 @@
 #define __TASKS_LED_H__
 
 void task_led_init(void);
-extern TaskHandle_t xLedTaskHandle;
+void task_led_stop(void);
+void task_led_toggle(void);
 
 #endif

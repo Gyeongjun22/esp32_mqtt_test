@@ -52,13 +52,33 @@ static void task_led(void* arg)
     }
 }
 
-TaskHandle_t xLedTaskHandle = NULL;
+static TaskHandle_t xLedTaskHandle = NULL;
+
 void task_led_init(void)
 {
-    ESP_LOGI(TAG, "Task led start");
+    if (xLedTaskHandle != NULL) return;  // 이미 실행 중이면 무시
 
+    ESP_LOGI(TAG, "Task led start");
     xTaskCreate(task_led, "Task_led", 2048, NULL, 11, &xLedTaskHandle);
-    if(xLedTaskHandle == NULL){
-        ESP_LOGE(TAG, "Task led test start fail");
+    if (xLedTaskHandle == NULL) {
+        ESP_LOGE(TAG, "Task led start fail");
+    }
+}
+
+void task_led_stop(void)
+{
+    if (xLedTaskHandle == NULL) return;
+
+    ESP_LOGI(TAG, "Task led stop");
+    vTaskDelete(xLedTaskHandle);
+    xLedTaskHandle = NULL;
+}
+
+void task_led_toggle(void)
+{
+    if (xLedTaskHandle != NULL) {
+        task_led_stop();
+    } else {
+        task_led_init();
     }
 }
