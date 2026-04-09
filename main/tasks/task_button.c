@@ -12,6 +12,7 @@
 
 #include "esp_event.h"
 #include "task_event.h"
+#include "task_mqtt.h"
 
 static const char* TAG = "Task_button";
 extern QueueHandle_t button_evt_queue;
@@ -53,14 +54,17 @@ static void task_button(void* arg)
                 if (duration >= pdMS_TO_TICKS(5000)){
                     ESP_LOGI(TAG, "EVT_BUTTON_LONG_LONG (%u ms)", (unsigned int)pdTICKS_TO_MS(duration));
                     xEventGroupSetBits(app_event_group, EVT_BUTTON_LONG_LONG);
+                    mqtt_publish("esp32/button", "long_long");
                 }
                 else if (duration >= pdMS_TO_TICKS(2000)){
                     ESP_LOGI(TAG, "EVT_BUTTON_LONG (%u ms)", (unsigned int)pdTICKS_TO_MS(duration));
                     xEventGroupSetBits(app_event_group, EVT_BUTTON_LONG);
+                    mqtt_publish("esp32/button", "long");
                 }
                 else{
                     ESP_LOGI(TAG, "EVT_BUTTON (Short) (%u ms)", (unsigned int)pdTICKS_TO_MS(duration));
                     xEventGroupSetBits(app_event_group, EVT_BUTTON);
+                    mqtt_publish("esp32/button", "short");
                 }
             }
 
