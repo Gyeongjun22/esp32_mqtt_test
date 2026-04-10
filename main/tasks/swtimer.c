@@ -4,6 +4,7 @@
 #include "freertos/timers.h"
 #include "freertos/projdefs.h"
 
+#include "esp_log.h"
 
 #include "task_led.h"
 #include "bsp_gpio.h"
@@ -12,17 +13,13 @@
 #include "relay.h"
 #include "button.h"
 
-#include "esp_log.h"
+#define TIME_10s  10000   // 10sec
 
-#define RELAY_OFF_TIME  10000   // 10sec
-
-static TimerHandle_t relay_off_timer;
-// static const char* TAG = __FILE__;
+static TimerHandle_t timer_10s;
 static const char* TAG = "SW_Timer";
 
 void sw_timer_callback(TimerHandle_t xTimer)
 {
-    relay_off();
     ESP_LOGI(TAG, "relay off timer");
 }
 
@@ -31,13 +28,22 @@ void sw_timer_init(void)
 {
     ESP_LOGI(TAG, "sw_timer_init");
     
-    relay_off_timer = xTimerCreate(
+    timer_10s = xTimerCreate(
         "relay_off_timer", 
-        pdMS_TO_TICKS(RELAY_OFF_TIME),
+        pdMS_TO_TICKS(TIME_10s),
         pdTRUE, 
         NULL, 
         sw_timer_callback
     );
     
-    xTimerStart(relay_off_timer, 0);
+    xTimerStart(timer_10s, 0);
+}
+
+void sw_timer_stop(void)
+{
+    if (timer_10s == NULL) return;
+
+    ESP_LOGI(TAG, "SW timer stop");
+    xTimerStop(timer_10s, 0);
+    timer_10s = NULL;
 }

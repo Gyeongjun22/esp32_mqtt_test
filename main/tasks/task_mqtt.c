@@ -87,8 +87,8 @@ void task_mqtt_init(void)
         .broker.address.uri  = MQTT_BROKER_URI,
         .broker.address.port = MQTT_PORT,
         .credentials.client_id = MQTT_CLIENT_ID,
-        .session.protocol_ver  = MQTT_PROTOCOL_V_5,   // MQTT v5
-        .session.keepalive     = 30,
+        .session.protocol_ver  = MQTT_PROTOCOL_V_5,     // MQTT v5
+        .session.keepalive     = 0,                     // keepalive 비활성화. (ping 안 보냄).
     };
 
     s_client = esp_mqtt_client_init(&cfg);

@@ -3,6 +3,7 @@
 
 
 void sw_timer_init(void);
+void sw_timer_stop(void);
 
 
 

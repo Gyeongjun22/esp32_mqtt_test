@@ -23,7 +23,14 @@ static BaseType_t cmd_hello(char *out, size_t outLen, const char *cmd) {
 static const CLI_Command_Definition_t hello_def = {
     "hello", "hello: 인사 출력\r\n", cmd_hello, 0
 };
-
+static BaseType_t cmd_heap( char *out, size_t outLen, const char *cmd )
+{
+	sprintf( out, "Current free heap %d bytes, minimum ever free heap %d bytes\r\n", ( int ) xPortGetFreeHeapSize(), ( int ) xPortGetMinimumEverFreeHeapSize() );
+    return pdFALSE;
+}
+static const CLI_Command_Definition_t heap_def = {
+    "heap", "heap size 출력\r\n", cmd_heap, 0
+};
 
 // ── mqtt ────────────────────────────────────────────────────────
 static BaseType_t cmd_mqtt(char *out, size_t outLen, const char *cmd) {
@@ -50,7 +57,19 @@ static const CLI_Command_Definition_t mqtt_def = {
     "mqtt", "mqtt <topic> <data>: MQTT 발행\r\n", cmd_mqtt, 2
 };
 
-
+// ── restart ────────────────────────────────────────────────────────
+BaseType_t cmd_restart(char *out, size_t outLen, const char *cmd) {
+	// ( void ) out;
+	// ( void ) outLen;
+	// configASSERT( out );
+	esp_restart();
+    return pdFALSE;
+}
+static const CLI_Command_Definition_t restart_def = {
+    "restart",
+    "restart\r\n",
+    cmd_restart, 0
+};
 
 // ── tasks ────────────────────────────────────────────────────────
 // vTaskList 출력(태스크 1개 ~45자 × 최대 30개 = ~1350자) + 헤더
@@ -185,14 +204,16 @@ static void console_task(void *arg) {
     uart_driver_install(CLI_UART, CLI_BUF_SIZE * 2, 0, 0, NULL, 0);
 
     FreeRTOS_CLIRegisterCommand(&hello_def);
+    FreeRTOS_CLIRegisterCommand(&heap_def);
     FreeRTOS_CLIRegisterCommand(&mqtt_def);
+    FreeRTOS_CLIRegisterCommand(&restart_def);
     FreeRTOS_CLIRegisterCommand(&tasks_def);
     FreeRTOS_CLIRegisterCommand(&task_start_def);
     FreeRTOS_CLIRegisterCommand(&task_stop_def);
 
     while (1) {
         if (uart_read_bytes(CLI_UART, &ch, 1, pdMS_TO_TICKS(10)) > 0) {
-            uart_write_bytes(CLI_UART, (char*)&ch, 1); // 에코
+            uart_write_bytes(CLI_UART, (char*)&ch, 1);  // 에코
             if (ch == '\r' || ch == '\n') {
                 input[idx] = '\0';
                 uart_write_bytes(CLI_UART, "\r\n", 2);

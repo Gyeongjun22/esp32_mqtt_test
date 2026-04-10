@@ -146,6 +146,5 @@ Component config → ESP-MQTT → Enable MQTT 5.0 support  [활성화]
 Component config → FreeRTOS → Kernel → Enable FreeRTOS trace facility        [활성화]
 Component config → FreeRTOS → Kernel → Enable FreeRTOS stats formatting functions  [활성화]
 
-# Timer Service 스택 (기본 2048 → 부족할 경우 증가)
-Component config → FreeRTOS → Kernel → Timer task stack size  [4096 권장]
+# Timer Service 스택 (기본 2048 → 4096)
 ```
