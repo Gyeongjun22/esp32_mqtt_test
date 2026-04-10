@@ -78,15 +78,30 @@ static void task_button(void* arg)
     }
 }
 
+static TaskHandle_t s_button_handle = NULL;
+
 void task_button_init(void)
 {
+    if (s_button_handle != NULL) return;
+
     button_init();
     assert(app_event_group);
-    TaskHandle_t xHandle = NULL;
     ESP_LOGI(TAG, "start");
-
-    xTaskCreate(task_button, "Task_button", 2048, NULL, 11, &xHandle);
-    if(xHandle == NULL){
+    xTaskCreate(task_button, "Task_button", 2048, NULL, 11, &s_button_handle);
+    if (s_button_handle == NULL) {
         ESP_LOGE(TAG, "task_button start fail");
     }
+}
+
+void task_button_stop(void)
+{
+    if (s_button_handle == NULL) return;
+    ESP_LOGI(TAG, "stop");
+    vTaskDelete(s_button_handle);
+    s_button_handle = NULL;
+}
+
+bool task_button_is_running(void)
+{
+    return s_button_handle != NULL;
 }

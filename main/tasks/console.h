@@ -7,7 +7,7 @@
 
 
 // void initialize_nvs(void);
-void console_main(void);
+void console_init(void);
 
 
 #endif

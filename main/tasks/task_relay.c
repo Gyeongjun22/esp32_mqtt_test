@@ -50,13 +50,28 @@ static void task_relay(void* arg)
     }
 }
 
+static TaskHandle_t s_relay_handle = NULL;
+
 void task_relay_init(void)
 {
-    TaskHandle_t xHandle = NULL;
-    ESP_LOGI(TAG, "start");
+    if (s_relay_handle != NULL) return;
 
-    xTaskCreate(task_relay, "Task_relay", 2048, NULL, 11, &xHandle);
-    if(xHandle == NULL){
+    ESP_LOGI(TAG, "start");
+    xTaskCreate(task_relay, "Task_relay", 2048, NULL, 11, &s_relay_handle);
+    if (s_relay_handle == NULL) {
         ESP_LOGE(TAG, "task_relay start fail");
     }
+}
+
+void task_relay_stop(void)
+{
+    if (s_relay_handle == NULL) return;
+    ESP_LOGI(TAG, "stop");
+    vTaskDelete(s_relay_handle);
+    s_relay_handle = NULL;
+}
+
+bool task_relay_is_running(void)
+{
+    return s_relay_handle != NULL;
 }

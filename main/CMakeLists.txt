@@ -37,6 +37,7 @@ idf_component_register(
         esp_wifi
         mqtt
         esp_netif
+        freertos_cli
         # console
         # fatfs
         # wear_levelling

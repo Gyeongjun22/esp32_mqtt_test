@@ -15,7 +15,7 @@
 #include "task_mqtt.h"
 
 #include "swtimer.h"
-// #include "console.h"
+#include "console.h"
 #include <stdio.h>
 #include <string.h>
 #include "esp_system.h"
@@ -52,6 +52,6 @@ void app_main(void)
     task_relay_init();
     sw_timer_init();
 
-    // console_main();
+    console_init();
 
 }

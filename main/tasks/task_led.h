@@ -4,5 +4,6 @@
 void task_led_init(void);
 void task_led_stop(void);
 void task_led_toggle(void);
+bool task_led_is_running(void);
 
 #endif

@@ -7,8 +7,8 @@
 #include "esp_netif.h"
 #include "esp_log.h"
 
-#define WIFI_SSID           "your_ssid"      // ← 실제 SSID로 변경
-#define WIFI_PASS           "your_password"  // ← 실제 비밀번호로 변경
+#define WIFI_SSID           "jb_wifibcm"      // ← 실제 SSID로 변경
+#define WIFI_PASS           "jubix@sk1303"  // ← 실제 비밀번호로 변경
 #define WIFI_CONNECT_TIMEOUT_MS  15000
 
 #define WIFI_CONNECTED_BIT  BIT0

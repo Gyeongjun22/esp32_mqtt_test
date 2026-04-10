@@ -82,3 +82,8 @@ void task_led_toggle(void)
         task_led_init();
     }
 }
+
+bool task_led_is_running(void)
+{
+    return xLedTaskHandle != NULL;
+}

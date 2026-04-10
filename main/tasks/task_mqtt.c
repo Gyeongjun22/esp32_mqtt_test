@@ -8,7 +8,7 @@
 #include "freertos/FreeRTOS.h"
 
 // ── 설정 ──────────────────────────────────────────────────────
-#define MQTT_BROKER_URI   "mqtt://192.168.1.100"  // ← Mosquitto 브로커 IP로 변경
+#define MQTT_BROKER_URI   "mqtt://192.168.0.140"  // ← Mosquitto 브로커 IP로 변경
 #define MQTT_PORT         1883
 #define MQTT_CLIENT_ID    "esp32-a02"
 
