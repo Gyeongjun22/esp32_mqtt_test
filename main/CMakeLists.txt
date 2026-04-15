@@ -11,7 +11,6 @@ idf_component_register(
         "drivers/hwtimer.c"
 
         "tasks/task_led.c"
-        "tasks/task_relay.c"
         "tasks/task_button.c"
         "tasks/task_hwtimer.c"
         "tasks/task_ble.c"
@@ -19,8 +18,11 @@ idf_component_register(
         
         "tasks/swtimer.c"
         "tasks/console.c"
+        "tasks/config_nvs.c"
+        "tasks/config_cli.c"
         "tasks/task_wifi.c"
         "tasks/task_mqtt.c"
+        "tasks/task_fota.c"
 
     INCLUDE_DIRS
         "."
@@ -37,6 +39,9 @@ idf_component_register(
         esp_wifi
         mqtt
         esp_netif
+        esp_https_ota
+        esp-tls
+        app_update
         freertos_cli
         # console
         # fatfs

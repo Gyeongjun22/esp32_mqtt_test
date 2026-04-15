@@ -6,13 +6,13 @@
 
 #include "bsp_gpio.h"
 #include "task_led.h"
-#include "task_relay.h"
 #include "task_button.h"
 #include "task_hwtimer.h"
 #include "task_ble.h"
 #include "task_event.h"
 #include "task_wifi.h"
 #include "task_mqtt.h"
+#include "task_fota.h"
 
 #include "swtimer.h"
 #include "console.h"
@@ -42,14 +42,14 @@ void app_main(void)
 
     task_wifi_init();   // WiFi 연결 (IP 획득 대기)
     task_mqtt_init();   // MQTT v5 클라이언트 시작
+    task_fota_init();   // FOTA 준비
 
     task_ble_main();
     
     task_button_init();
-    task_hwtimer_init();
+    task_hwtimer_init(); // 5초 타이머 (EVT_TIMER set)
 
     task_led_init();
-    task_relay_init();
     sw_timer_init();
 
     console_init();

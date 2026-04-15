@@ -5,6 +5,7 @@
 
 
 #include "led.h"
+#include "relay.h"
 #include "button.h"
 #include "bsp_gpio.h"
 
@@ -24,7 +25,8 @@ static void task_event(void* arg)
     {
         EventBits_t bits = xEventGroupWaitBits(
             app_event_group,
-            EVT_BUTTON | EVT_TIMER | EVT_BUTTON_LONG | EVT_BUTTON_LONG_LONG,
+            EVT_BUTTON | EVT_TIMER | EVT_BUTTON_LONG | EVT_BUTTON_LONG_LONG |
+            EVT_RELAY_ON | EVT_RELAY_OFF | EVT_LED_ON | EVT_LED_OFF,
             pdTRUE,
             pdFALSE,
             portMAX_DELAY
@@ -34,11 +36,13 @@ static void task_event(void* arg)
         {
             led_on(BSP_LED_GREEN);
             led_off(BSP_LED_RED);
+            relay_on();
         }
         if (bits & EVT_TIMER)
         {
             led_off(BSP_LED_GREEN);
             led_off(BSP_LED_RED);
+            relay_off();
         }
         if (bits & EVT_BUTTON_LONG)
         {
@@ -55,6 +59,22 @@ static void task_event(void* arg)
             printf("Task Name\tState\tPrio\tStack\tNum\n");
             printf("------------------------------------------------\n");
             printf("%s\n", pcWriteBuffer);
+        }
+        if (bits & EVT_RELAY_ON)
+        {
+            relay_on();
+        }
+        if (bits & EVT_RELAY_OFF)
+        {
+            relay_off();
+        }
+        if (bits & EVT_LED_ON)
+        {
+            led_on(BSP_LED_RED);
+        }
+        if (bits & EVT_LED_OFF)
+        {
+            led_off(BSP_LED_RED);
         }
     }
 }
